@@ -23,14 +23,14 @@
 
 void save_img(screenshot *ss) {
 	int code = 0;
-	FILE *fp;
+	FILE *outfile;
 	png_structp png_ptr;
 	png_infop png_info_ptr;
 	png_bytep png_row;
 
 	// Open file
-	fp = fopen("test.png", "wb");
-	if (fp == NULL) {
+	outfile = fopen("screenshot.png", "wb");
+	if (outfile == NULL) {
 		fprintf (stderr, "Could not open file for writing\n");
 		code = 1;
 	}
@@ -55,7 +55,7 @@ void save_img(screenshot *ss) {
 		code = 1;
 	}
 
-	png_init_io(png_ptr, fp);
+	png_init_io(png_ptr, outfile);
 
 	// Write header (8 bit color depth)
 	png_set_IHDR(png_ptr, png_info_ptr, ss->width, ss->height,
@@ -65,7 +65,7 @@ void save_img(screenshot *ss) {
 	png_write_png(png_ptr, png_info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 
 	// Free
-	fclose(fp);
+	fclose(outfile);
 
 	if (png_info_ptr != NULL) {
 		png_free_data(png_ptr, png_info_ptr, PNG_FREE_ALL, -1);
