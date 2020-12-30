@@ -16,23 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdint.h>
+#ifndef _included_logger
+#define _included_logger
 
-#include "logger.h"
+#include <screencapture.h>
 
-static bool default_logger(unsigned int level, const char *format, ...) {
-    return false;
-}
+#ifndef __FUNCTION__
+#define __FUNCTION__ __func__
+#endif
 
-// Current logger function pointer, should never be null.
-logger_t logger = &default_logger;
+#define log_debug(...) log_callback(LOG_LEVEL_DEBUG, __VA_ARGS__)
+#define log_info(...)  log_callback(LOG_LEVEL_INFO,  __VA_ARGS__)
+#define log_warn(...)  log_callback(LOG_LEVEL_WARN,  __VA_ARGS__)
+#define log_error(...) log_callback(LOG_LEVEL_ERROR, __VA_ARGS__)
 
-UIOHOOK_API void hook_set_logger_proc(logger_t logger_proc) {
-    if (logger_proc == NULL) {
-        logger = &default_logger;
-    } else {
-        logger = logger_proc;
-    }
-}
+// screen_log_callback_t(level, message)
+extern screen_log_callback_t log_callback;
+
+#endif

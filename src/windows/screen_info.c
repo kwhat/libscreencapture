@@ -20,10 +20,10 @@
 #include <windows.h>
 
 // Structure for the monitor_enum_proc() callback so we can track the count.
-typedef struct _monitor_info {
+typedef struct _monitor_info_t {
     uint8_t count;
-    screen_data *data;
-} monitor_info;
+    screen_data_t *data;
+} monitor_info_t;
 
 /* The following function was contributed by Anthony Liguori Jan 14, 2015.
  * https://github.com/kwhat/libuiohook/pull/17
@@ -44,12 +44,12 @@ static BOOL CALLBACK monitor_enum_proc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT
         monitor_info *screens = (monitor_info *) dwData;
 
         if (screens->data == NULL) {
-            screens->data = (screen_data *) malloc(sizeof(screen_data));
+            screens->data = (screen_data_t *) malloc(sizeof(screen_data_t));
         } else {
-            screens->data = (screen_data *) realloc(screens, sizeof(screen_data) * screens->count);
+            screens->data = (screen_data_t *) realloc(screens, sizeof(screen_data_t) * screens->count);
         }
 
-        screens->data[screens->count++] = (screen_data) {
+        screens->data[screens->count++] = (screen_data_t) {
                 // Should monitor count start @ zero? Currently it starts at 1.
                 .number = screens->count,
                 .x = origin_x,
@@ -65,7 +65,7 @@ static BOOL CALLBACK monitor_enum_proc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT
     return TRUE;
 }
 
-SCREENCAPTURE_API screen_data* screen_info(int8_t *count) {
+SCREENCAPTURE_API screen_data_t* screen_info(int8_t *count) {
     *count = 0;
 
     // Create a simple structure to make working with monitor_enum_proc easier.
@@ -85,11 +85,11 @@ SCREENCAPTURE_API screen_data* screen_info(int8_t *count) {
         int height = GetSystemMetrics(SM_CYSCREEN);
 
         if (width > 0 && height > 0) {
-            screens.data = (screen_data *) malloc(sizeof(screen_data));
+            screens.data = (screen_data_t *) malloc(sizeof(screen_data_t));
 
             if (screens.data != NULL) {
                 *count = 1;
-                screens.data[0] = (screen_data) {
+                screens.data[0] = (screen_data_t) {
                     .number = 1,
                     .x = 0,
                     .y = 0,

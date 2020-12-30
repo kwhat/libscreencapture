@@ -31,6 +31,7 @@ endif()
 add_library(screencapture
     "src/${SCREEN_CAPTURE_SOURCE_DIR}/screen_capture.c"
     "src/${SCREEN_CAPTURE_SOURCE_DIR}/screen_info.c"
+    "src/logging.c"
 )
 
 set_target_properties(screencapture PROPERTIES
@@ -72,8 +73,6 @@ if(BUILD_DEMO)
         set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
     endif()
 
-    find_package(Threads REQUIRED)
-
     add_executable(demo_capture
         "./demo/demo_capture.c"
         #"./demo/demo_info.c"
@@ -102,28 +101,13 @@ endif()
 if(UNIX AND NOT APPLE)
     find_package(PkgConfig REQUIRED)
 
+    pkg_check_modules(X11 REQUIRED x11)
+    target_include_directories(screencapture PRIVATE "${X11_INCLUDE_DIRS}")
+    target_link_libraries(screencapture "${X11_LDFLAGS}")
+
     pkg_check_modules(JPEG REQUIRED libjpeg)
     target_include_directories(demo_capture PRIVATE "${JPEG_INCLUDE_DIRS}")
     target_link_libraries(demo_capture "${JPEG_LDFLAGS}")
-
-    pkg_check_modules(OPENGL REQUIRED opengl)
-    target_include_directories(screencapture PRIVATE "${OPENGL_INCLUDE_DIRS}")
-    target_link_libraries(screencapture "${OPENGL_LDFLAGS}")
-
-
-#    pkg_check_modules(X11 REQUIRED x11)
-#    target_include_directories(screencapture PRIVATE "${X11_INCLUDE_DIRS}")
-#    target_link_libraries(screencapture "${X11_LDFLAGS}")
-
-#    pkg_check_modules(XTST REQUIRED xtst)
-#    target_include_directories(screencapture PRIVATE "${XTST_INCLUDE_DIRS}")
-#    target_link_libraries(screencapture "${XTST_LDFLAGS}")
-
-#    include(CheckLibraryExists)
-#    check_library_exists(Xtst XRecordQueryVersion "" HAVE_XRECORD)
-
-#    include(CheckIncludeFile)
-#    check_include_file(X11/extensions/record.h HAVE_RECORD_H "-include X11/Xlib.h")
 
     option(USE_XSHM "X Shared Memory Extension (default: ON)" ON)
     if(USE_XSHM)
@@ -131,23 +115,6 @@ if(UNIX AND NOT APPLE)
         add_compile_definitions(screencapture PRIVATE USE_XSHM)
         target_include_directories(screencapture PRIVATE "${XEXT_INCLUDE_DIRS}")
         target_link_libraries(screencapture "${XEXT_LDFLAGS}")
-    endif()
-
-    option(USE_XT "X Toolkit Extension (default: ON)" ON)
-    if(USE_XT)
-        pkg_check_modules(XT REQUIRED xt)
-        add_compile_definitions(screencapture PRIVATE USE_XT)
-        target_include_directories(screencapture PRIVATE "${XT_INCLUDE_DIRS}")
-        target_link_libraries(screencapture "${XT_LDFLAGS}")
-    endif()
-
-
-    option(USE_XF86MISC "XFree86-Misc X Extension (default: OFF)" OFF)
-    if(USE_XF86MISC)
-        pkg_check_modules(XF86MISC REQUIRED Xxf86misc)
-        add_compile_definitions(screencapture PRIVATE USE_XF86MISC)
-        target_include_directories(screencapture PRIVATE "${XF86MISC_INCLUDE_DIRS}")
-        target_link_libraries(screencapture "${XF86MISC_LDFLAGS}")
     endif()
 
     option(USE_XRANDR "XRandR Extension (default: OFF)" OFF)
@@ -164,24 +131,6 @@ if(UNIX AND NOT APPLE)
         add_compile_definitions(screencapture PRIVATE USE_XINERAMA)
         target_include_directories(screencapture PRIVATE "${XINERAMA_INCLUDE_DIRS}")
         target_link_libraries(screencapture "${XINERAMA_LDFLAGS}")
-    endif()
-
-    option(USE_XRECORD_ASYNC "XRecord Asynchronous API (default: OFF)" OFF)
-    if(USE_XRECORD_ASYNC)
-        add_compile_definitions(screencapture PRIVATE USE_XRECORD_ASYNC)
-    endif()
-
-    option(USE_XTEST "XTest API (default: ON)" ON)
-    if(USE_XTEST)
-        # XTest API is provided by Xtst
-        add_compile_definitions(screencapture PRIVATE USE_XTEST)
-    endif()
-
-    if(LINUX)
-        option(USE_EVDEV "Generic Linux input driver (default: enabled)" ON)
-        if(USE_EVDEV)
-            add_compile_definitions("USE_EVDEV")
-        endif()
     endif()
 elseif(APPLE)
     message(STATUS "Is Apple")

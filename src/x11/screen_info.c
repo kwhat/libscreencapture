@@ -18,6 +18,7 @@
 
 #include <screencapture.h>
 #include <stdlib.h>
+#include "logging.h"
 
 #if defined(USE_XINERAMA) && !defined(USE_XRANDR)
 #include <X11/extensions/Xinerama.h>
@@ -26,9 +27,9 @@
 #include <X11/extensions/Xrandr.h>
 #endif
 
-SCREENCAPTURE_API screen_data* screen_info(int8_t *count) {
+SCREENCAPTURE_API screen_data_t* screen_info(int8_t *count) {
     *count = 0;
-    screen_data *screens = NULL;
+    screen_data_t *screens = NULL;
 
     Display *disp = XOpenDisplay(XDisplayName(NULL));
 
@@ -41,17 +42,17 @@ SCREENCAPTURE_API screen_data* screen_info(int8_t *count) {
             if (xine_count > UINT8_MAX) {
                 *count = UINT8_MAX;
 
-//                logger(LOG_LEVEL_WARN, "%s [%u]: Screen count overflow detected!\n",
-//                        __FUNCTION__, __LINE__);
+                log_warn("%s [%u]: Screen count overflow detected!\n",
+                        __FUNCTION__, __LINE__);
             } else {
                 *count = (uint8_t) xine_count;
             }
 
-            screens = malloc(sizeof(screen_data) * xine_count);
+            screens = malloc(sizeof(screen_data_t) * xine_count);
 
             if (screens != NULL) {
                 for (int i = 0; i < xine_count; i++) {
-                    screens[i] = (screen_data) {
+                    screens[i] = (screen_data_t) {
                         .number = xine_info[i].screen_number,
                         .x = xine_info[i].x_org,
                         .y = xine_info[i].y_org,
@@ -71,20 +72,20 @@ SCREENCAPTURE_API screen_data* screen_info(int8_t *count) {
         if (xrandr_count > UINT8_MAX) {
             *count = UINT8_MAX;
 
-            logger(LOG_LEVEL_WARN, "%s [%u]: Screen count overflow detected!\n",
+            log_warn("%s [%u]: Screen count overflow detected!\n",
                     __FUNCTION__, __LINE__);
         } else {
             *count = (uint8_t) xrandr_count;
         }
 
-        screens = malloc(sizeof(screen_data) * xrandr_count);
+        screens = malloc(sizeof(screen_data_t) * xrandr_count);
 
         if (screens != NULL) {
             for (int i = 0; i < xrandr_count; i++) {
                 XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(disp, xrandr_resources, xrandr_resources->crtcs[i]);
 
                 if (crtc_info != NULL) {
-                    screens[i] = (screen_data) {
+                    screens[i] = (screen_data_t) {
                         .number = i + 1,
                         .x = crtc_info->x,
                         .y = crtc_info->y,
@@ -94,8 +95,8 @@ SCREENCAPTURE_API screen_data* screen_info(int8_t *count) {
 
                     XRRFreeCrtcInfo(crtc_info);
                 } else {
-//                    logger(LOG_LEVEL_WARN, "%s [%u]: XRandr failed to return crtc information! (%#X)\n",
-//                            __FUNCTION__, __LINE__, xrandr_resources->crtcs[i]);
+                    log_warn("%s [%u]: XRandr failed to return crtc information! (%#X)\n",
+                            __FUNCTION__, __LINE__, xrandr_resources->crtcs[i]);
                 }
             }
         }
@@ -105,11 +106,11 @@ SCREENCAPTURE_API screen_data* screen_info(int8_t *count) {
     Screen* default_screen = DefaultScreenOfDisplay(disp);
 
     if (default_screen->width > 0 && default_screen->height > 0) {
-        screens = malloc(sizeof(screen_data));
+        screens = malloc(sizeof(screen_data_t));
 
         if (screens != NULL) {
             *count = 1;
-            screens[0] = (screen_data) {
+            screens[0] = (screen_data_t) {
                 .number = 1,
                 .x = 0,
                 .y = 0,

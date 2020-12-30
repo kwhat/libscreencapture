@@ -20,9 +20,9 @@
 #include <screencapture.h>
 #include <stdlib.h>
 
-SCREENCAPTURE_API screen_data* screen_info(int8_t *count) {
+SCREENCAPTURE_API screen_data_t* screen_info(int8_t *count) {
     CGError status = kCGErrorFailure;
-    screen_data* screens = NULL;
+    screen_data_t* screens = NULL;
 
     // Initialize count to zero.
     *count = 0;
@@ -41,14 +41,14 @@ SCREENCAPTURE_API screen_data* screen_info(int8_t *count) {
 //                    __FUNCTION__, __LINE__, *count);
 
             // Allocate memory for the number of screens found.
-            screens = malloc(sizeof(screen_data) * (*count));
+            screens = malloc(sizeof(screen_data_t) * (*count));
             if (screens != NULL) {
                 for (uint8_t i = 0; i < *count; i++) {
                     //size_t width = CGDisplayPixelsWide(display_ids[i]);
                     //size_t height = CGDisplayPixelsHigh(display_ids[i]);
                     CGRect boundsDisp = CGDisplayBounds(display_ids[i]);
                     if (boundsDisp.size.width > 0 && boundsDisp.size.height > 0) {
-                        screens[i] = (screen_data) {
+                        screens[i] = (screen_data_t) {
                             .number = i + 1,
                             //TODO: make sure we follow the same convention for the origin
                             //in all other platform implementations (upper-left)
@@ -71,11 +71,11 @@ SCREENCAPTURE_API screen_data* screen_info(int8_t *count) {
             size_t height = CGDisplayPixelsHigh(CGMainDisplayID());
 
             if (width > 0 && height > 0) {
-                screens = malloc(sizeof(screen_data));
+                screens = malloc(sizeof(screen_data_t));
 
                 if (screens != NULL) {
                     *count = 1;
-                    screens[0] = (screen_data) {
+                    screens[0] = (screen_data_t) {
                         .number = 1,
                         .x = 0,
                         .y = 0,

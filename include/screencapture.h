@@ -19,16 +19,30 @@
 #ifndef __SCREENCAPTURE_H
 #define __SCREENCAPTURE_H
 
+#include <stdarg.h>
+#include <stdbool.h>
 #include <stdint.h>
 
+/* Begin Log Levels and Function Prototype */
+typedef enum _screen_log_level_t {
+    LOG_LEVEL_DEBUG = 1,
+    LOG_LEVEL_INFO,
+    LOG_LEVEL_WARN,
+    LOG_LEVEL_ERROR
+} screen_log_level_t;
+
+// Logging callback function prototype.
+typedef bool (*screen_log_callback_t)(screen_log_level_t, const char *, ...);
+/* End Log Levels and Function Prototype */
+
 /* Begin Data Structures */
-typedef struct _screen_data {
+typedef struct _screen_data_t {
     uint8_t number;
     int16_t x;
     int16_t y;
     uint16_t width;
     uint16_t height;
-} screen_data;
+} screen_data_t;
 /* End Data Structures */
 
 #ifdef _WIN32
@@ -41,9 +55,11 @@ typedef struct _screen_data {
 extern "C" {
 #endif
 
-    SCREENCAPTURE_API screen_data* screen_info(int8_t *count);
+    SCREENCAPTURE_API screen_data_t* screen_info(int8_t *count);
 
-	SCREENCAPTURE_API int8_t* screen_capture(int16_t x, int16_t y, uint16_t width, uint16_t height);
+    SCREENCAPTURE_API int8_t* screen_capture(int16_t x, int16_t y, uint16_t width, uint16_t height);
+
+    SCREENCAPTURE_API void screen_set_log_callback(screen_log_callback_t callback);
 
 #ifdef __cplusplus
 }
