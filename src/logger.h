@@ -1,13 +1,13 @@
-/* libScreenShot: Cross-platfrom fast screenshot library.
- * Copyright (C) 2014 Alexander Barker.  All Rights Received.
- * https://github.com/kwhat/libscreenshot/
+/* libScreenCapture: Cross-platform screen capture library.
+ * Copyright (C) 2006-2020 Alexander Barker.  All Rights Received.
+ * https://github.com/kwhat/libscreencapture/
  *
- * libScreenShot is free software: you can redistribute it and/or modify
+ * libScreenCapture is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * libScreenShot is distributed in the hope that it will be useful,
+ * libScreenCapture is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -16,13 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _included_engine
-#define _included_engine
+#ifndef _included_logger
+#define _included_logger
 
-extern int init();
+#include <uiohook.h>
+#include <stdbool.h>
 
-extern int cleanup();
+#ifndef __FUNCTION__
+#define __FUNCTION__ __func__
+#endif
 
-extern screenshot* capture();
+// logger(level, message)
+extern logger_t logger;
 
 #endif
